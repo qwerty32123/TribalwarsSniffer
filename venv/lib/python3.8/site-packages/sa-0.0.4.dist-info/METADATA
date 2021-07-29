@@ -1,0 +1,29 @@
+Metadata-Version: 2.1
+Name: sa
+Version: 0.0.4
+Summary: Python split annotations package
+Home-page: https://www.github.com/weld-project/split-annotations
+Author: Shoumik Palkar
+Author-email: shoumik@cs.stanford.edu
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: scipy
+Requires-Dist: sharedmem
+
+## split annotations
+
+This package contains the Python implementation of [split annotations](), a system for optimizing applications
+that combine many data-intensive library functions. See some useful links below.
+
+* [Documentation for this package](https://www.weld.rs/split-annotations/docs/)
+* [GitHub repository](https://www.github.com/weld-project/split-annotations)
+* [SOSP 2019 Paper describing the system](https://shoumik.xyz/static/papers/mozart-sosp19final.pdf)
+
+
