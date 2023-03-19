@@ -17,9 +17,10 @@ from CookieParser import format_cookies
 
 class SaveTribalwarsRequests:
     def __init__(self):
-        self.server = 'www.tribalwars.com'
-        self.world = 'en120'
+        self.server = 'www.tribalwars.net'
+        self.world = 'en133'
         self.user = 'zumodorslok'
+        self.world_url = self.server.replace('www',self.world)
         self.version = 1.0
         self.session_object =  SessionModel(server=self.server, world=self.world, version=self.version, user=self.user)
         self.engine = create_engine('postgresql://postgres:123@localhost:5432/tribalwars')
@@ -53,56 +54,60 @@ class SaveTribalwarsRequests:
 
     def response(self, flow: http.HTTPFlow) -> None:
 
-        try:
-            if flow.request.headers['x-ig-client-version'] and self.session_object.version == None:
-                self.session_object.version = flow.request.headers['x-ig-client-version']
 
-                self.session.commit()
-        except KeyError:
-            pass
+        request_url = flow.request.pretty_url
+        print(request_url)
+        if self.server in request_url or self.world_url in request_url:
 
-        request_url = flow.request.url
+            try:
+                if flow.request.headers['x-ig-client-version'] and self.session_object.version == None:
+                    self.session_object.version = flow.request.headers['x-ig-client-version']
 
-        Request = RequestModel(method=flow.request.method, url=request_url)
-        request_headers = dict(flow.request.headers.items())
-        request_headers = json.dumps(request_headers)
-        Request.headers = request_headers
+                    self.session.commit()
+            except KeyError:
+                pass
 
 
-        Request.cookies = str(dict(flow.request.cookies))
-        Request.body = ""
-        if len(flow.request.text) >= 1:
-            Request.body = flow.request.text
-
-        Request.timestamp_start = flow.request.timestamp_start
-        Request.timestamp_end = flow.request.timestamp_end
-        Request.size = len(flow.request.content)
-
-        response_headers = dict(flow.response.headers.items())
+            Request = RequestModel(method=flow.request.method, url=request_url)
+            request_headers = dict(flow.request.headers.items())
+            request_headers = json.dumps(request_headers)
+            Request.headers = request_headers
 
 
-        response_headers = json.dumps(response_headers)
+            Request.cookies = str(dict(flow.request.cookies))
+            Request.body = ""
+            if len(flow.request.text) >= 1:
+                Request.body = flow.request.text
 
-        Response = ResponseModel(headers=response_headers,
-                                 status_code=flow.response.status_code)
+            Request.timestamp_start = flow.request.timestamp_start
+            Request.timestamp_end = flow.request.timestamp_end
+            Request.size = len(flow.request.content)
 
-        Response.body = ""
-        if len(flow.response.text) >= 1:
-            Response.body = flow.response.text.replace("\x00", "\uFFFD")
+            response_headers = dict(flow.response.headers.items())
 
-        Response.cookies = str(dict(flow.response.cookies))
 
-        self.session.add(Response)
+            response_headers = json.dumps(response_headers)
 
-        self.session.commit()
+            Response = ResponseModel(headers=response_headers,
+                                     status_code=flow.response.status_code)
 
-        Request.response = [Response]
-        self.session.add(Request)
-        self.session.commit()
+            Response.body = ""
+            if len(flow.response.text) >= 1:
+                Response.body = flow.response.text.replace("\x00", "\uFFFD")
 
-        self.session_object.requests.extend([Request])
+            Response.cookies = str(dict(flow.response.cookies))
 
-        self.session.commit()
+            self.session.add(Response)
+
+            self.session.commit()
+
+            Request.response = [Response]
+            self.session.add(Request)
+            self.session.commit()
+
+            self.session_object.requests.extend([Request])
+
+            self.session.commit()
 
 
 addons = [SaveTribalwarsRequests()]
