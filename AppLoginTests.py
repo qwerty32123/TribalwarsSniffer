@@ -101,7 +101,7 @@ class LoginTests(unittest.TestCase):
     driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
 
 
-    user = 'zumodorslok'
+    user = 'user1'
     password = '123456789'
     server_name = 'International'
     world_name = 'World 133'
